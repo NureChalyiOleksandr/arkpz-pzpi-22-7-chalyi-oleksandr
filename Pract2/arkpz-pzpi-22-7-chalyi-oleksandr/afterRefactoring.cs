@@ -9,7 +9,6 @@ else
     Console.WriteLine("Invalid number format");
 }
 
-
 // Після рефакторингу
 class Circle
 {
@@ -20,9 +19,6 @@ class Circle
         return Math.PI * Radius * Radius;
     }
 }
-
-
-
 
 // Після рефакторингу
 class Animal
