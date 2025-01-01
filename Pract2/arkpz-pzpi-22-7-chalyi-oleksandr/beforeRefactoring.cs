@@ -21,9 +21,6 @@ class Circle
     }
 }
 
-
-
-
 // До рефакторингу
 class Animal
 {
