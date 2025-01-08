@@ -1,0 +1,301 @@
+﻿МІНІСТЕРСТВО ОСВІТИ І НАУКИ УКРАЇНИ 
+ХАРКІВСЬКИЙ НАЦІОНАЛЬНИЙ УНІВЕРСИТЕТ РАДІОЕЛЕКТРОНІКИ 
+
+
+
+
+
+
+
+
+Кафедра «Програмна інженерія» 
+
+
+
+
+
+
+
+
+
+
+
+
+ЗВІТ 
+до лабораторної роботи №3
+ з дисципліни «Аналіз та рефакторинг коду» 
+на тему: «РОЗРОБКА БІЗНЕС-ЛОГІКИ ТА ФУНКЦІЙ АДМІНІСТРУВАННЯ СЕРВЕРНОЇ ЧАСТИНИ ПРОГРАМНОЇ СИСТЕМИ» 
+
+
+
+
+
+
+
+
+
+
+
+
+Виконав:                                                         Перевірив: 
+ст. гр. ПЗПІ-22-7                                                 ст. викладач кафедри ПІ 
+Чалий Олександр Олександрович                         Сокорчук Ігор Петрович 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Харків 2024
+Завдання:
+Створення бізнес-логіки та адміністративних функцій
+для серверної частини програмного забезпечення.
+Хід роботи:
+Посилання на відеозапис: https://youtu.be/OeIC8lpJ7t8 
+Під час виконання лабораторної роботи було додано наступний функціонал до системи:
+1. Автоматичне регулювання освітлення(Програмну реалізацію наведено у Додатку А):
+   * Аналіз рівня природного освітлення.
+   * Врахування погодних умов (рівня видимості).
+   * Виявлення наявності руху на вулицях за допомогою сенсорів руху.
+2. Генерація сповіщень(Програмну реалізацію наведено у Додатку Б):
+   * Автоматична генерація сповіщень при перевищенні максимального рівня використання електроенергії ліхтарями.
+Структура проєкту:
+* Repositories: Для взаємодії з базою даних.
+* Services: Для обробки даних та бізнес логіки: регулювання освітлення, генерація сповіщень, тощо
+* Controllers: Для управління запитами API.
+Алгоритм роботи:
+1. Отримання даних із сенсорів:
+Отримуються показники з датчиків освітленості, руху та погодних умов.
+2. Аналіз даних:
+   * Освітленість: Якщо рівень природного освітлення нижче порогового значення, система вмикає вуличне освітлення.
+   * Погодні умови: При низькому рівні видимості(тумані чи дощі) збільшується інтенсивність освітлення.
+   * Рух: У разі виявлення руху в зоні покриття збільшується інтенсивність освітлення.
+   3. Реалізація бізнес-правил:
+Якщо освітленість < мінімального порогу: "Ввімкнути освітлення на X%."
+      * Якщо рух зафіксовано в зоні A: "Збільшити інтенсивність освітлення на 50% у зоні A."
+      * Якщо рівень видимості Y: "Збільшити інтенсивність освітлення на Z%."
+      4. Генерація результату:
+      * Якщо всі параметри в нормі, освітлення залишається вимкненим або на мінімальному рівні.
+      * Інакше генерується рекомендація із зазначенням параметрів і збереженням у базі даних.
+      5. Збереження подій:
+      * Логування кожного рішення в базі даних.
+
+
+
+
+
+
+Діаграма послідовності(Рис. 1):
+Процес автоматичного регулювання освітлення
+Учасники:
+      * Сенсори: Відправляють дані про освітленість, рух та погоду.
+      * Контролер API: Отримує дані від сенсорів і передає їх у сервіс.
+      * Сервіс освітлення: Аналізує дані та приймає рішення.
+      * База даних: Зберігає події та журнали.
+Кроки:
+      1. Сенсори: Передають показники до Контролера API.
+      2. Контролер API: Перевіряє валідність даних і передає їх у Сервіс освітлення.
+      3. Сервіс освітлення: Аналізує отримані дані:
+      * Освітленість.
+      * Рух.
+      * Погодні умови.
+      4. Сервіс освітлення: Генерує рішення щодо інтенсивності освітлення.
+      5. База даних: Зберігає потрібні дані.
+      6. Контролер API: Повертає рівень освітленості відповідному ліхтарю.
+  
+
+Рисунок 1 - Діаграма послідовності
+
+
+Діаграма Взаємодії(Рис. 2):
+Процес активації освітлення в умовах руху
+Учасники:
+      * Користувач: Проходить по вулиці, активуючи сенсори руху.
+      * Сенсор руху: Фіксує рух і передає дані.
+      * Контролер API: Обробляє запит.
+      * Сервіс освітлення: Аналізує стан системи.
+      * База даних: Отримує дані про попередні події.
+Кроки:
+      1. Користувач: Ініціює рух в зоні покриття сенсора.
+      2. Сенсор руху: Передає сигнал до Контролера API.
+      3. Контролер API: Отримує дані та надсилає запит до Сервісу освітлення.
+      4. Сервіс освітлення:
+      * Перевіряє поточний стан освітлення.
+      * Аналізує умови руху та погодні дані.
+      5. Сервіс освітлення: Приймає рішення про збільшення інтенсивності освітлення.
+      6. База даних: Зберігає потрібні дані.
+      7. Контролер API: Повертає рішення до ліхтарів.
+  
+
+Рисунок 2 - Діаграма взаємодії
+
+
+Додаток А 
+Сервіс для регулювання рівня освітленості
+namespace SmartLightSense.Services.BrightnessUpdateBackgroundService
+{
+    public class BrightnessUpdateBackgroundService : BackgroundService
+    {
+        private readonly IServiceScopeFactory _scopeFactory;
+        public BrightnessUpdateBackgroundService(IServiceScopeFactory scopeFactory)
+        {
+            _scopeFactory = scopeFactory;
+        }
+        protected override async Task ExecuteAsync(CancellationToken stoppingToken)
+        {
+            while (!stoppingToken.IsCancellationRequested)
+            {
+                try
+                {
+                    using (var scope = _scopeFactory.CreateScope())
+                    {
+                        var streetlightRepository = scope.ServiceProvider.GetRequiredService<IStreetlightRepository>();
+                        var sensorRepository = scope.ServiceProvider.GetRequiredService<ISensorRepository>();
+                        var weatherDataRepository = scope.ServiceProvider.GetRequiredService<IWeatherDataRepository>();
+                        var streetlights = await streetlightRepository.GetAllAsync();
+                        var weatherData = await weatherDataRepository.GetLatestWeatherAsync();
+                        if (weatherData == null)
+                        {
+                            weatherData = new WeatherData { Visibility = 1.0 };
+                        }
+                        foreach (var streetlight in streetlights)
+                        {
+                            var streetlightsInSector = await streetlightRepository.GetBySectorIdAsync(streetlight.SectorId);
+                            var sensorsInSector = new List<Sensor>();
+                            foreach (var streetlightInSector in streetlightsInSector)
+                            {
+                                var sensorsForStreetlight = await sensorRepository.GetByStreetLightIdAsync(streetlightInSector.Id);
+                                sensorsInSector.AddRange(sensorsForStreetlight);
+                            }
+                            var motionSensor = sensorsInSector.FirstOrDefault(sensor => sensor.SensorType == "Motion" && sensor.Data == 1);
+                            var motionDetected = motionSensor != null;
+                            var lightSensor = sensorsInSector.FirstOrDefault(sensor => sensor.SensorType == "Light" && sensor.StreetlightId == streetlight.Id);
+                            var lightIntensity = lightSensor != null ? lightSensor.Data : 0;
+                            int brightness = CalculateBrightness(lightIntensity, motionDetected, weatherData.Visibility);
+                            await streetlightRepository.UpdateBrightnessAsync(streetlight.Id, brightness);
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"Error while updating brightness: {ex.Message}");
+                }
+                await Task.Delay(TimeSpan.FromSeconds(10), stoppingToken);
+            }
+        }
+        private int CalculateBrightness(int lightIntensity, bool motionDetected, double visibility)
+        {
+            int normalLightIntensity = 1000;
+            double visibilityFactor = visibility < 0.05 ? 1.5 : (visibility > 0.5 ? 1 : 1.5 - (visibility - 0.05) * (0.5 - 1) / (0.5 - 0.05));
+            double lightIntensityFactor = lightIntensity < normalLightIntensity ? 1 + (normalLightIntensity - lightIntensity) / (double)normalLightIntensity : 1;
+            if (visibility >= 0.2 && lightIntensity >= normalLightIntensity)
+                return 0;
+            var brightness = visibilityFactor * lightIntensityFactor * 50;
+            return motionDetected ? (int)(brightness * 1.5) : (int)(brightness);
+        }
+    }
+}
+________________
+
+
+Додаток Б 
+Сервіс для генерації сповіщень
+namespace SmartLightSense.Services.EnergyUsageAlertBackgroundService
+{
+    public class EnergyUsageAlertBackgroundService : BackgroundService
+    {
+        private readonly IServiceScopeFactory _scopeFactory;
+        private readonly double _usageLimit = 50.0;
+
+
+        public EnergyUsageAlertBackgroundService(IServiceScopeFactory scopeFactory)
+        {
+            _scopeFactory = scopeFactory;
+        }
+
+
+        protected override async Task ExecuteAsync(CancellationToken stoppingToken)
+        {
+            while (!stoppingToken.IsCancellationRequested)
+            {
+                try
+                {
+                    using (var scope = _scopeFactory.CreateScope())
+                    {
+                        var streetlightRepository = scope.ServiceProvider.GetRequiredService<IStreetlightRepository>();
+                        var energyUsageRepository = scope.ServiceProvider.GetRequiredService<IEnergyUsageRepository>();
+                        var alertRepository = scope.ServiceProvider.GetRequiredService<IAlertRepository>();
+
+
+                        var streetlights = await streetlightRepository.GetAllAsync();
+
+
+                        foreach (var streetlight in streetlights)
+                        {
+                            var lastEnergyUsage = await energyUsageRepository.GetLatestByStreetlightIdAsync(streetlight.Id);
+
+
+                            if (lastEnergyUsage == null)
+                                continue;
+
+
+                            var oneHourAgo = DateTime.Now.AddHours(-1);
+                            var energyUsage = await energyUsageRepository.GetByDateAndStreetlightIdAsync(streetlight.Id, oneHourAgo);
+
+
+                            if (energyUsage == null)
+                                continue;
+
+
+                            var energyUsed = energyUsage.EnergyConsumed;
+                            var energyDifference = lastEnergyUsage.EnergyConsumed - energyUsed;
+
+
+                            if (energyDifference > _usageLimit)
+                            {
+                                var existingAlerts = await alertRepository.GetByStreetLightIdAsync(streetlight.Id);
+                                var existingAlert = existingAlerts
+                                    .FirstOrDefault(alert => alert.AlertType == "EnergyUsageAlert" && alert.AlertDateTime >= oneHourAgo);
+
+
+                                if (existingAlert == null)
+                                {
+                                    var message = $"Energy usage limit exceeded, " +
+                                                  $"used: {energyDifference} watts, " +
+                                                  $"allowed limit: {_usageLimit} watts.";
+
+
+                                    var alert = new Alert
+                                    {
+                                        StreetlightId = streetlight.Id,
+                                        SensorId = null,
+                                        AlertType = "EnergyUsageAlert",
+                                        Message = message,
+                                        AlertDateTime = DateTime.Now,
+                                        Resolved = false
+                                    };
+                                    await alertRepository.CreateAsync(alert);
+                                }
+                            }
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"Error while checking energy usage alerts: {ex.Message}");
+                }
+
+
+                await Task.Delay(TimeSpan.FromSeconds(10), stoppingToken);
+            }
+        }
+    }
+}
