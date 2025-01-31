@@ -10,7 +10,7 @@ class Program
 {
     private const string MqttBrokerAddress = "test.mosquitto.org";
     private const string MqttTopic = "SLS";
-
+      
     static async Task Main(string[] args)
     {
         Console.WriteLine("MQTT to HTTP Redirector started...");
